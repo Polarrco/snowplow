@@ -153,6 +153,7 @@ class KinesisSource private (
         .withRegionName(kinesisConfig.region)
         // If the record list is empty, we still check whether it is time to flush the buffer
         .withCallProcessRecordsEvenForEmptyRecordList(true)
+        .withMetricsLevel(com.amazonaws.services.kinesis.metrics.interfaces.MetricsLevel.NONE)
 
       val position = InitialPositionInStream.valueOf(kinesisConfig.initialPosition)
       kinesisConfig.timestamp.right.toOption

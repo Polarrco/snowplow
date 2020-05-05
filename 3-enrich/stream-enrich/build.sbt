@@ -32,7 +32,7 @@ lazy val commonDependencies = Seq(
 lazy val buildSettings = Seq(
   organization  :=  "com.snowplowanalytics",
   name          :=  "snowplow-stream-enrich",
-  version       :=  "1.0.0",
+  version       :=  "1.0.2",
   description   :=  "The streaming Snowplow Enrichment process",
   scalaVersion  :=  "2.12.10",
   resolvers     ++= Dependencies.resolutionRepos
@@ -54,7 +54,7 @@ lazy val allSettings = buildSettings ++
 
 lazy val root = project.in(file("."))
   .settings(buildSettings)
-  .aggregate(core, kinesis, kafka, nsq, stdin, integrationTests)
+  .aggregate(core, kinesis, nsq, stdin)
 
 lazy val core = project
   .settings(moduleName := "snowplow-stream-enrich")
@@ -83,17 +83,6 @@ lazy val kinesis = project
   .enablePlugins(JavaAppPackaging, DockerPlugin)
   .dependsOn(core)
 
-lazy val kafka = project
-  .settings(moduleName := "snowplow-stream-enrich-kafka")
-  .settings(allSettings)
-  .settings(packageName in Docker := "snowplow/stream-enrich-kafka")
-  .settings(BuildSettings.formatting)
-  .settings(libraryDependencies ++= Seq(
-    Dependencies.Libraries.kafkaClients
-  ))
-  .enablePlugins(JavaAppPackaging, DockerPlugin)
-  .dependsOn(core)
-
 lazy val nsq = project
   .settings(moduleName := "snowplow-stream-enrich-nsq")
   .settings(allSettings)
@@ -108,15 +97,3 @@ lazy val stdin = project
   .settings(allSettings)
   .settings(BuildSettings.formatting)
   .dependsOn(core)
-
-lazy val integrationTests = project.in(file("./integration-tests"))
-  .settings(moduleName := "integration-tests")
-  .settings(allSettings)
-  .settings(BuildSettings.formatting)
-  .settings(BuildSettings.addExampleConfToTestCp)
-  .settings(libraryDependencies ++= Seq(
-    // Test
-    Dependencies.Libraries.kafka,
-    Dependencies.Libraries.jinJava
-  ))
-  .dependsOn(core % "test->test", kafka % "test->compile")
